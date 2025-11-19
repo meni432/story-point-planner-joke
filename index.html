@@ -14,11 +14,11 @@
     .field { margin-bottom: 16px; }
     label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
     .hint { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
-    input[type="number"], input[type="range"] {
+    input[type="number"], input[type="range"], select {
       width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.95rem; outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease; background-color: #f9fafb;
     }
-    input[type="number"]:focus, input[type="range"]:focus { border-color: #6366f1; box-shadow: 0 0 0 1px rgba(99,102,241,0.35); background-color: #ffffff; }
+    input[type="number"]:focus, input[type="range"]:focus, select:focus { border-color: #6366f1; box-shadow: 0 0 0 1px rgba(99,102,241,0.35); background-color: #ffffff; }
     input[type="range"] { padding: 0; height: 6px; margin: 8px 0; }
     .fear-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #6b7280; }
     .results-card { margin-top: 20px; padding: 16px; border-radius: 12px; background: #f3f4ff; border: 1px solid #e0e7ff; }
@@ -29,6 +29,9 @@
     .formula { margin-top: 20px; font-size: 0.8rem; color: #6b7280; line-height: 1.4; background: #f9fafb; border-radius: 8px; padding: 10px 12px; border: 1px dashed #e5e7eb; }
     .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; background: #eef2ff; color: #4f46e5; margin-left: 4px; }
     .muted { color: #6b7280; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .mini-label { font-size: 0.75rem; color: #6b7280; margin-top: 4px; text-align: center; }
+    @media (max-width: 600px) { .grid-5 { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .container { padding: 18px 16px 24px; } }
   </style>
 </head>
@@ -46,10 +49,42 @@
       <div class="hint">Each regular story is counted as <strong>3.14</strong> story points (π).</div>
     </div>
 
+    <!-- Big stories: 5 boxes with fixed choices -->
     <div class="field">
-      <label for="bigStoryPoints">Total story points for big / complex stories</label>
-      <input id="bigStoryPoints" type="number" min="0" step="0.5" value="0" />
-      <div class="hint">Sum of estimated story points for all big stories.</div>
+      <label>Top big 5 stories (choose SP for each)</label>
+      <div class="grid-5">
+        <div>
+          <select id="big1">
+            <option>0</option><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option>
+          </select>
+          <div class="mini-label">Story 1</div>
+        </div>
+        <div>
+          <select id="big2">
+            <option>0</option><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option>
+          </select>
+          <div class="mini-label">Story 2</div>
+        </div>
+        <div>
+          <select id="big3">
+            <option>0</option><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option>
+          </select>
+          <div class="mini-label">Story 3</div>
+        </div>
+        <div>
+          <select id="big4">
+            <option>0</option><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option>
+          </select>
+          <div class="mini-label">Story 4</div>
+        </div>
+        <div>
+          <select id="big5">
+            <option>0</option><option>10</option><option>20</option><option>30</option><option>40</option><option>50</option>
+          </select>
+          <div class="mini-label">Story 5</div>
+        </div>
+      </div>
+      <div class="hint">Choices per big story: 0, 10, 20, 30, 40, 50 SP. Total big SP is the sum of all five.</div>
     </div>
 
     <div class="section-title">Unpredicted factor <span class="badge">fear factor</span></div>
@@ -129,7 +164,7 @@
     <!-- Formula -->
     <div class="formula">
       <div><strong>Formula</strong></div>
-      <div>Base points: <code>S_total = 3.14 · N_regular + S_big</code></div>
+      <div>Base points: <code>S_total = 3.14 · N_regular + Σ S_big[i] (i=1..5)</code></div>
       <div>Fear multiplier: <code>F(f) = 1 + 0.05 · f</code></div>
       <div>Planned points: <code>S_planned = S_total · F(f)</code></div>
       <div>Capacity/sprint: <code>C = Devs · SprintDays</code></div>
@@ -146,16 +181,16 @@
       var WORK_DAYS_PER_WEEK = 5;
       var WEEKS_PER_MONTH = 4.345;
 
-      function toNumber(v) {
-        var n = parseFloat(v);
-        return isNaN(n) ? 0 : n;
-      }
-      function fmt(n, d) {
-        if (!isFinite(n)) return "—";
-        var x = Number(n.toFixed(d));
-        return (d === 0 ? x.toString() : x.toFixed(d)).replace(/\.00$/, "");
-      }
+      function toNumber(v) { var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+      function fmt(n, d) { if (!isFinite(n)) return "—"; var x = Number(n.toFixed(d)); return (d === 0 ? x.toString() : x.toFixed(d)).replace(/\.00$/, ""); }
       function plural(n, s) { return n + " " + s + (n === 1 ? "" : "s"); }
+
+      function sumBigStories() {
+        var ids = ["big1","big2","big3","big4","big5"];
+        var total = 0;
+        for (var i = 0; i < ids.length; i++) total += toNumber(document.getElementById(ids[i]).value);
+        return total;
+      }
 
       function breakdownFromWeeks(weeks) {
         var totalDays = weeks * WORK_DAYS_PER_WEEK;
@@ -186,7 +221,7 @@
 
       function calculate() {
         var regular = toNumber(document.getElementById("regularStories").value);
-        var bigSP = toNumber(document.getElementById("bigStoryPoints").value);
+        var bigSP = sumBigStories();
         var fear = toNumber(document.getElementById("fearFactor").value);
         var sprintDays = toNumber(document.getElementById("sprintDays").value);
         var devs = toNumber(document.getElementById("developers").value);
@@ -224,7 +259,6 @@
           document.getElementById("timeBreakdown").textContent = breakdownStr;
           document.getElementById("timeWeeksOnly").textContent = weeksOnlyStr;
 
-          // Hide Weeks-only when identical to breakdown
           document.getElementById("rowWeeksOnly").style.display =
             (breakdownStr === weeksOnlyStr) ? "none" : "";
         } else {
@@ -234,7 +268,7 @@
         }
       }
 
-      ["regularStories","bigStoryPoints","fearFactor","sprintDays","developers"]
+      ["regularStories","fearFactor","sprintDays","developers","big1","big2","big3","big4","big5"]
         .forEach(function(id){ document.getElementById(id).addEventListener("input", calculate); });
 
       calculate();
