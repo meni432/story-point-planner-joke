@@ -5,226 +5,102 @@
   <title>Story Point Planner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    :root {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
+    :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     body {
-      margin: 0;
-      padding: 0;
-      background: #f5f5f7;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      min-height: 100vh;
+      margin: 0; padding: 0; background: #f5f5f7;
+      display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
     }
-
     .container {
-      margin: 32px 16px;
-      max-width: 600px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+      margin: 32px 16px; max-width: 640px; width: 100%;
+      background: #ffffff; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
       padding: 24px 24px 32px;
     }
-
-    h1 {
-      font-size: 1.6rem;
-      margin: 0 0 4px;
+    h1 { font-size: 1.6rem; margin: 0 0 4px; }
+    .subtitle { font-size: 0.9rem; color: #6b7280; margin-bottom: 20px; }
+    .section-title { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
+    .hint { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
+    input[type="number"], input[type="range"] {
+      width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px;
+      border: 1px solid #d1d5db; font-size: 0.95rem; outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease; background-color: #f9fafb;
     }
-
-    .subtitle {
-      font-size: 0.9rem;
-      color: #6b7280;
-      margin-bottom: 20px;
+    input[type="number"]:focus, input[type="range"]:focus {
+      border-color: #6366f1; box-shadow: 0 0 0 1px rgba(99,102,241,0.35); background-color: #ffffff;
     }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      margin: 16px 0 8px;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    label {
-      display: block;
-      font-size: 0.9rem;
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .hint {
-      font-size: 0.8rem;
-      color: #6b7280;
-      margin-top: 2px;
-    }
-
-    input[type="number"],
-    input[type="range"] {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid #d1d5db;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-      background-color: #f9fafb;
-    }
-
-    input[type="number"]:focus,
-    input[type="range"]:focus {
-      border-color: #6366f1;
-      box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.35);
-      background-color: #ffffff;
-    }
-
-    input[type="range"] {
-      padding: 0;
-      height: 6px;
-      margin: 8px 0;
-    }
-
-    .fear-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      color: #6b7280;
-    }
-
+    input[type="range"] { padding: 0; height: 6px; margin: 8px 0; }
+    .fear-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #6b7280; }
     .results-card {
-      margin-top: 20px;
-      padding: 16px;
-      border-radius: 12px;
-      background: #f3f4ff;
-      border: 1px solid #e0e7ff;
+      margin-top: 20px; padding: 16px; border-radius: 12px; background: #f3f4ff; border: 1px solid #e0e7ff;
     }
-
-    .result-line {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
-
-    .result-label {
-      color: #4b5563;
-    }
-
-    .result-value {
-      font-weight: 600;
-      color: #111827;
-    }
-
-    .result-main {
-      font-size: 1.2rem;
-      margin-top: 4px;
-    }
-
+    .result-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; }
+    .result-label { color: #4b5563; }
+    .result-value { font-weight: 600; color: #111827; }
+    .result-main { font-size: 1.2rem; margin-top: 4px; }
     .formula {
-      margin-top: 20px;
-      font-size: 0.8rem;
-      color: #6b7280;
-      line-height: 1.4;
-      background: #f9fafb;
-      border-radius: 8px;
-      padding: 10px 12px;
-      border: 1px dashed #e5e7eb;
+      margin-top: 20px; font-size: 0.8rem; color: #6b7280; line-height: 1.4;
+      background: #f9fafb; border-radius: 8px; padding: 10px 12px; border: 1px dashed #e5e7eb;
     }
-
     .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      background: #eef2ff;
-      color: #4f46e5;
-      margin-left: 4px;
+      display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
+      background: #eef2ff; color: #4f46e5; margin-left: 4px;
     }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 18px 16px 24px;
-      }
-    }
+    .muted { color: #6b7280; }
+    @media (max-width: 480px) { .container { padding: 18px 16px 24px; } }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Story Point Planner</h1>
-    <div class="subtitle">
-      Simple calculator for planning capacity with a fear factor.
-    </div>
+    <div class="subtitle">Simple calculator for planning capacity with a fear factor (π = 3.14 for regular stories).</div>
 
     <!-- Inputs -->
-    <div class="section-title">Stories</div>
+    <div class="section-title">Stories <span class="badge">π factor</span></div>
 
     <div class="field">
-      <label for="regularStories">
-        Regular stories (unit stories in Jira)
-      </label>
-      <input
-        id="regularStories"
-        type="number"
-        min="0"
-        step="1"
-        value="0"
-      />
-      <div class="hint">
-        Each regular story is counted as 3 story points.
-      </div>
+      <label for="regularStories">Regular stories (unit stories in Jira)</label>
+      <input id="regularStories" type="number" min="0" step="1" value="0" />
+      <div class="hint">Each regular story is counted as <strong>3.14</strong> story points (π).</div>
     </div>
 
     <div class="field">
-      <label for="bigStoryPoints">
-        Total story points for big / complex stories
-      </label>
-      <input
-        id="bigStoryPoints"
-        type="number"
-        min="0"
-        step="0.5"
-        value="0"
-      />
-      <div class="hint">
-        Sum of estimated story points for all big stories.
-      </div>
+      <label for="bigStoryPoints">Total story points for big / complex stories</label>
+      <input id="bigStoryPoints" type="number" min="0" step="0.5" value="0" />
+      <div class="hint">Sum of estimated story points for all big stories.</div>
     </div>
 
     <div class="section-title">
-      Unpredicted factor
-      <span class="badge">fear factor</span>
+      Unpredicted factor <span class="badge">fear factor</span>
     </div>
 
     <div class="field">
-      <label for="fearFactor">
-        Fear factor (1 - 10)
-      </label>
-      <input
-        id="fearFactor"
-        type="range"
-        min="0"
-        max="10"
-        step="1"
-        value="3"
-      />
+      <label for="fearFactor">Fear factor (0 - 10)</label>
+      <input id="fearFactor" type="range" min="0" max="10" step="1" value="3" />
       <div class="fear-row">
         <span>0 - no extra risk</span>
         <span>10 - very risky</span>
       </div>
       <div class="hint">
-        Current fear factor:
-        <span id="fearValue">3</span>
-        → multiplier:
+        Current fear factor: <span id="fearValue">3</span> → multiplier:
         <span id="multiplierValue">1.15</span>
       </div>
+    </div>
+
+    <!-- Scheduling -->
+    <div class="section-title">Scheduling</div>
+
+    <div class="field">
+      <label for="sprintDays">How many <strong>working days</strong> do you have in a sprint?</label>
+      <input id="sprintDays" type="number" min="1" step="1" value="10" />
+      <div class="hint">Typical two-week sprint ≈ 10 working days.</div>
+    </div>
+
+    <div class="field">
+      <label for="developers">How many <strong>developers</strong> are in the project?</label>
+      <input id="developers" type="number" min="1" step="1" value="3" />
+      <div class="hint">Capacity per sprint = developers × working days.</div>
     </div>
 
     <!-- Results -->
@@ -238,77 +114,111 @@
         <span class="result-value" id="multiplierDisplay">1.15</span>
       </div>
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 10px 0;" />
+
       <div class="result-line result-main">
         <span class="result-label">Planned story points</span>
         <span class="result-value" id="plannedPoints">0</span>
       </div>
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 10px 0;" />
+
+      <div class="result-line">
+        <span class="result-label">Capacity per sprint (SP)</span>
+        <span class="result-value" id="capacityPerSprint">—</span>
+      </div>
+      <div class="result-line">
+        <span class="result-label">Estimated sprints</span>
+        <span class="result-value" id="sprints">—</span>
+      </div>
+      <div class="result-line">
+        <span class="result-label">Total time</span>
+        <span class="result-value" id="timeTotals">—</span>
+      </div>
+      <div class="hint muted">Assumes 1 SP ≈ 1 developer-day, 5 workdays/week, 4.345 weeks/month.</div>
     </div>
 
     <!-- Formula explanation -->
     <div class="formula">
       <div><strong>Formula</strong></div>
-      <div>
-        Base points:
-        <code>S_total = 3 · N_regular + S_big</code>
-      </div>
-      <div>
-        Fear multiplier:
-        <code>F(f) = 1 + 0.05 · f</code>
-      </div>
-      <div>
-        Final:
-        <code>S_planned = S_total · F(f)</code>
+      <div>Base points: <code>S_total = 3.14 · N_regular + S_big</code></div>
+      <div>Fear multiplier: <code>F(f) = 1 + 0.05 · f</code></div>
+      <div>Planned points: <code>S_planned = S_total · F(f)</code></div>
+      <div>Capacity/sprint: <code>C = Devs · SprintDays</code></div>
+      <div>Duration: <code>Sprints = S_planned / C</code>,
+        <code>Weeks = Sprints · (SprintDays / 5)</code>,
+        <code>Months = Weeks / 4.345</code>
       </div>
     </div>
   </div>
 
   <script>
-    function toNumber(value) {
-      var n = parseFloat(value);
-      return isNaN(n) ? 0 : n;
-    }
+    (function () {
+      var PI_POINTS = 3.14;              // regular story -> 3.14 SP
+      var WORK_DAYS_PER_WEEK = 5;
+      var WEEKS_PER_MONTH = 4.345;
 
-    function calculate() {
-      var regularInput = document.getElementById("regularStories");
-      var bigInput = document.getElementById("bigStoryPoints");
-      var fearInput = document.getElementById("fearFactor");
+      function toNumber(v) {
+        var n = parseFloat(v);
+        return isNaN(n) ? 0 : n;
+      }
+      function fmt(n, d) {
+        if (!isFinite(n)) return "—";
+        var x = Number(n.toFixed(d));
+        return (d === 0 ? x.toString() : x.toFixed(d)).replace(/\.00$/, "");
+      }
 
-      var regularStories = toNumber(regularInput.value);
-      var bigStoryPoints = toNumber(bigInput.value);
-      var fearFactor = toNumber(fearInput.value);
+      function calculate() {
+        var regular = toNumber(document.getElementById("regularStories").value);
+        var bigSP = toNumber(document.getElementById("bigStoryPoints").value);
+        var fear = toNumber(document.getElementById("fearFactor").value);
+        var sprintDays = toNumber(document.getElementById("sprintDays").value);
+        var devs = toNumber(document.getElementById("developers").value);
 
-      // Base story points
-      // S_total = 3 * N_regular + S_big
-      var basePoints = 3 * regularStories + bigStoryPoints;
+        // Base story points (π factor)
+        var basePoints = PI_POINTS * regular + bigSP;
 
-      // Fear multiplier
-      // F(f) = 1 + 0.05 * f
-      var multiplier = 1 + 0.05 * fearFactor;
+        // Fear multiplier
+        var multiplier = 1 + 0.05 * fear;
 
-      // Planned story points
-      var plannedPoints = basePoints * multiplier;
+        // Planned story points (assume 1 SP ≈ 1 dev-day of effort)
+        var plannedPoints = basePoints * multiplier;
 
-      // Update UI
-      document.getElementById("basePoints").textContent =
-        basePoints.toFixed(2).replace(/\.00$/, "");
-      document.getElementById("multiplierDisplay").textContent =
-        multiplier.toFixed(2);
-      document.getElementById("plannedPoints").textContent =
-        plannedPoints.toFixed(2);
+        // Capacity per sprint
+        var capacity = (sprintDays > 0 && devs > 0) ? (devs * sprintDays) : 0;
 
-      document.getElementById("fearValue").textContent =
-        fearFactor.toFixed(0);
-      document.getElementById("multiplierValue").textContent =
-        multiplier.toFixed(2);
-    }
+        // Duration
+        var sprints = capacity > 0 ? (plannedPoints / capacity) : NaN;
+        var weeks = isFinite(sprints) ? (sprints * (sprintDays / WORK_DAYS_PER_WEEK)) : NaN;
+        var months = isFinite(weeks) ? (weeks / WEEKS_PER_MONTH) : NaN;
 
-    // Attach listeners
-    document.getElementById("regularStories").addEventListener("input", calculate);
-    document.getElementById("bigStoryPoints").addEventListener("input", calculate);
-    document.getElementById("fearFactor").addEventListener("input", calculate);
+        // Update UI
+        document.getElementById("basePoints").textContent = fmt(basePoints, 2);
+        document.getElementById("multiplierDisplay").textContent = fmt(multiplier, 2);
+        document.getElementById("plannedPoints").textContent = fmt(plannedPoints, 2);
 
-    // Initial calculation
-    calculate();
+        document.getElementById("fearValue").textContent = fear.toFixed(0);
+        document.getElementById("multiplierValue").textContent = fmt(multiplier, 2);
+
+        document.getElementById("capacityPerSprint").textContent = capacity > 0 ? fmt(capacity, 0) : "—";
+
+        var sprintsText = (isFinite(sprints))
+          ? (fmt(sprints, 2) + " (ceil: " + Math.ceil(sprints) + ")")
+          : "—";
+        document.getElementById("sprints").textContent = sprintsText;
+
+        var timeText = (isFinite(weeks) && isFinite(months))
+          ? (fmt(weeks, 2) + " weeks  ·  " + fmt(months, 2) + " months")
+          : "—";
+        document.getElementById("timeTotals").textContent = timeText;
+      }
+
+      // Listeners
+      ["regularStories","bigStoryPoints","fearFactor","sprintDays","developers"]
+        .forEach(function(id){ document.getElementById(id).addEventListener("input", calculate); });
+
+      // Initial calc
+      calculate();
+    })();
   </script>
 </body>
 </html>
