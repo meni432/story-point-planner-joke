@@ -6,15 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-    body {
-      margin: 0; padding: 0; background: #f5f5f7;
-      display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
-    }
-    .container {
-      margin: 32px 16px; max-width: 640px; width: 100%;
-      background: #ffffff; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
-      padding: 24px 24px 32px;
-    }
+    body { margin: 0; padding: 0; background: #f5f5f7; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .container { margin: 32px 16px; max-width: 640px; width: 100%; background: #ffffff; border-radius: 16px; box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12); padding: 24px 24px 32px; }
     h1 { font-size: 1.6rem; margin: 0 0 4px; }
     .subtitle { font-size: 0.9rem; color: #6b7280; margin-bottom: 20px; }
     .section-title { font-size: 1rem; font-weight: 600; margin: 16px 0 8px; }
@@ -22,31 +15,19 @@
     label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
     .hint { font-size: 0.8rem; color: #6b7280; margin-top: 2px; }
     input[type="number"], input[type="range"] {
-      width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px;
-      border: 1px solid #d1d5db; font-size: 0.95rem; outline: none;
+      width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 0.95rem; outline: none;
       transition: border-color 0.15s ease, box-shadow 0.15s ease; background-color: #f9fafb;
     }
-    input[type="number"]:focus, input[type="range"]:focus {
-      border-color: #6366f1; box-shadow: 0 0 0 1px rgba(99,102,241,0.35); background-color: #ffffff;
-    }
+    input[type="number"]:focus, input[type="range"]:focus { border-color: #6366f1; box-shadow: 0 0 0 1px rgba(99,102,241,0.35); background-color: #ffffff; }
     input[type="range"] { padding: 0; height: 6px; margin: 8px 0; }
     .fear-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: #6b7280; }
-    .results-card {
-      margin-top: 20px; padding: 16px; border-radius: 12px; background: #f3f4ff; border: 1px solid #e0e7ff;
-    }
-    .result-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; }
+    .results-card { margin-top: 20px; padding: 16px; border-radius: 12px; background: #f3f4ff; border: 1px solid #e0e7ff; }
+    .result-line { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.95rem; gap: 12px; }
     .result-label { color: #4b5563; }
-    .result-value { font-weight: 600; color: #111827; }
+    .result-value { font-weight: 600; color: #111827; text-align: right; }
     .result-main { font-size: 1.2rem; margin-top: 4px; }
-    .formula {
-      margin-top: 20px; font-size: 0.8rem; color: #6b7280; line-height: 1.4;
-      background: #f9fafb; border-radius: 8px; padding: 10px 12px; border: 1px dashed #e5e7eb;
-    }
-    .badge {
-      display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px;
-      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em;
-      background: #eef2ff; color: #4f46e5; margin-left: 4px;
-    }
+    .formula { margin-top: 20px; font-size: 0.8rem; color: #6b7280; line-height: 1.4; background: #f9fafb; border-radius: 8px; padding: 10px 12px; border: 1px dashed #e5e7eb; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; background: #eef2ff; color: #4f46e5; margin-left: 4px; }
     .muted { color: #6b7280; }
     @media (max-width: 480px) { .container { padding: 18px 16px 24px; } }
   </style>
@@ -130,10 +111,21 @@
         <span class="result-label">Estimated sprints</span>
         <span class="result-value" id="sprints">—</span>
       </div>
+
+      <!-- New: clearer time readouts -->
       <div class="result-line">
-        <span class="result-label">Total time</span>
+        <span class="result-label">Total time (decimal)</span>
         <span class="result-value" id="timeTotals">—</span>
       </div>
+      <div class="result-line">
+        <span class="result-label">Breakdown (m·month + w·week + d·day)</span>
+        <span class="result-value" id="timeBreakdown">—</span>
+      </div>
+      <div class="result-line">
+        <span class="result-label">Weeks-only</span>
+        <span class="result-value" id="timeWeeksOnly">—</span>
+      </div>
+
       <div class="hint muted">Assumes 1 SP ≈ 1 developer-day, 5 workdays/week, 4.345 weeks/month.</div>
     </div>
 
@@ -167,6 +159,43 @@
         return (d === 0 ? x.toString() : x.toFixed(d)).replace(/\.00$/, "");
       }
 
+      function plural(n, s) { return n + " " + s + (n === 1 ? "" : "s"); }
+
+      function breakdownFromWeeks(weeks) {
+        // Convert to working days first for stable rounding
+        var totalDays = weeks * WORK_DAYS_PER_WEEK;
+
+        // One month ≈ 4.345 weeks
+        var daysPerMonth = WEEKS_PER_MONTH * WORK_DAYS_PER_WEEK; // ≈ 21.725
+        var m = Math.floor(totalDays / daysPerMonth);
+        var remDays = totalDays - m * daysPerMonth;
+
+        var w = Math.floor(remDays / WORK_DAYS_PER_WEEK);
+        var d = Math.round(remDays - w * WORK_DAYS_PER_WEEK); // round days
+
+        // Normalize possible round-up to 5 days -> carry to week
+        if (d === WORK_DAYS_PER_WEEK) { d = 0; w += 1; }
+        // (w won't exceed 4 here because remDays < 21.725)
+
+        return { m: m, w: w, d: d };
+      }
+
+      function formatBreakdown(b) {
+        var parts = [];
+        if (b.m) parts.push(plural(b.m, "month"));
+        if (b.w) parts.push(plural(b.w, "week"));
+        if (b.d) parts.push(plural(b.d, "day"));
+        return parts.length ? parts.join(" + ") : "0 days";
+      }
+
+      function weeksOnlyString(weeks) {
+        var totalDays = weeks * WORK_DAYS_PER_WEEK;
+        var w = Math.floor(totalDays / WORK_DAYS_PER_WEEK);
+        var d = Math.round(totalDays - w * WORK_DAYS_PER_WEEK);
+        if (d === WORK_DAYS_PER_WEEK) { d = 0; w += 1; }
+        return d ? (plural(w, "week") + " + " + plural(d, "day")) : plural(w, "week");
+      }
+
       function calculate() {
         var regular = toNumber(document.getElementById("regularStories").value);
         var bigSP = toNumber(document.getElementById("bigStoryPoints").value);
@@ -180,7 +209,7 @@
         // Fear multiplier
         var multiplier = 1 + 0.05 * fear;
 
-        // Planned story points (assume 1 SP ≈ 1 dev-day of effort)
+        // Planned story points (assume 1 SP ≈ 1 dev-day)
         var plannedPoints = basePoints * multiplier;
 
         // Capacity per sprint
@@ -206,17 +235,28 @@
           : "—";
         document.getElementById("sprints").textContent = sprintsText;
 
+        // Decimal/approx line
         var timeText = (isFinite(weeks) && isFinite(months))
-          ? (fmt(weeks, 2) + " weeks  ·  " + fmt(months, 2) + " months")
+          ? (fmt(weeks, 2) + " weeks · " + fmt(months, 2) + " months")
           : "—";
         document.getElementById("timeTotals").textContent = timeText;
+
+        // Breakdown lines
+        if (isFinite(weeks)) {
+          var b = breakdownFromWeeks(weeks);
+          document.getElementById("timeBreakdown").textContent =
+            formatBreakdown(b); // "1 month + 4 weeks" or "4 weeks", etc.
+          document.getElementById("timeWeeksOnly").textContent =
+            weeksOnlyString(weeks); // "8 weeks" or "8 weeks + 2 days"
+        } else {
+          document.getElementById("timeBreakdown").textContent = "—";
+          document.getElementById("timeWeeksOnly").textContent = "—";
+        }
       }
 
-      // Listeners
       ["regularStories","bigStoryPoints","fearFactor","sprintDays","developers"]
         .forEach(function(id){ document.getElementById(id).addEventListener("input", calculate); });
 
-      // Initial calc
       calculate();
     })();
   </script>
